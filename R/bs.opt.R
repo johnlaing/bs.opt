@@ -1,12 +1,27 @@
-bs.opt <- function(cp=c("call", "put"), strike, time.to.mat=NULL, val.date=NULL, exp.date=NULL, spot, vol, rate=NULL, fwd=NULL) {
+bs.opt <- function(cp=c("call", "put"), strike=NULL, delta=NULL, time.to.mat=NULL, val.date=NULL, exp.date=NULL, spot, vol, rate=NULL, fwd=NULL) {
     cp <- match.arg(cp, several.ok=TRUE)
 
     if (is.null(time.to.mat)) {
         if (is.null(val.date)) val.date <- Sys.Date()
+        if (is.null(exp.date)) stop("if 'time.to.mat' is NULL then 'exp.date' must be provided")
         time.to.mat <- as.numeric(exp.date - val.date) / 365
     }
     if (is.null(rate)) {
+        if (is.null(fwd) | is.null(spot)) stop("if 'rate' is NULL then 'fwd' and 'spot' must be provided")
         rate <- log(fwd / spot) / time.to.mat
+    }
+    if (is.null(strike)) {
+        if (is.null(delta)) stop("if 'strike' is NULL then 'delta' must be provided")
+        if (any(abs(delta) < 0 | abs(delta) > 1)) stop("'delta' must be between 0 and 1")
+
+        strike <- spot
+        ans <- bs.opt(cp=cp, strike=strike, time.to.mat=time.to.mat, spot=spot, vol=vol, rate=rate)
+        if (any(c(call=1, put=-1)[ans$cp] != sign(delta))) stop("calls must have positive delta and puts must have negative delta")
+        while (any(abs(ans$delta - delta) > .Machine$double.eps ^ 0.5)) {
+            strike <- strike + strike * (ans$delta - delta) / ans$gamma
+            ans <- bs.opt(cp=cp, strike=strike, time.to.mat=time.to.mat, spot=spot, vol=vol, rate=rate)
+        }
+        return(ans)
     }
     ans <- data.frame(cp, strike, time.to.mat, spot, vol, rate, stringsAsFactors=FALSE)
     d1 <- d1(strike, time.to.mat, spot, vol, rate)
@@ -34,7 +49,7 @@ bs.opt <- function(cp=c("call", "put"), strike, time.to.mat=NULL, val.date=NULL,
 }
 
 bs.fx.opt <- function(cp=c("call", "put"), strike, time.to.mat=NULL, val.date=NULL, exp.date=NULL, spot, vol, rate=NULL, fwd=NULL) {
-    ans <- bs.opt(cp=cp, strike=strike, time.to.mat=time.to.mat, spot=spot, vol=vol, rate=rate)
+    ans <- bs.opt(cp=cp, strike=strike, time.to.mat=time.to.mat, val.date=val.date, exp.date=exp.date, spot=spot, vol=vol, rate=rate, fwd=fwd)
     ans$price <- ans$price / ans$spot
     ans$delta <- ans$delta - ans$price
     ans$gamma <- ans$vega <- ans$theta <- NULL

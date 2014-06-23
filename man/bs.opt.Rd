@@ -4,12 +4,13 @@
 \title{Black-Scholes Option}
 \description{Applications of he Black-Scholes option pricing formula}
 \usage{
-bs.opt(cp=c("call", "put"), strike, time.to.mat=NULL, val.date=NULL, exp.date=NULL, spot, vol, rate=NULL, fwd=NULL)
+bs.opt(cp=c("call", "put"), strike=NULL, delta=NULL, time.to.mat=NULL, val.date=NULL, exp.date=NULL, spot, vol, rate=NULL, fwd=NULL)
 bs.fx.opt(cp=c("call", "put"), strike, time.to.mat=NULL, val.date=NULL, exp.date=NULL, spot, vol, rate=NULL, fwd=NULL)
 }
 \arguments{
   \item{cp}{Direction of the option: call or put.}
-  \item{strike}{Strike price of the option.}
+  \item{strike}{Strike price of the option. If left \code{NULL}, will be calculated from \code{delta}.}
+  \item{delta}{Delta of the option. Used to calculate the strike if \code{strike} is \code{NULL}, and ignored otherwise.}
   \item{time.to.mat}{Time to maturity of the option, expressed in years. If left \code{NULL}, will be calculated from \code{val.date} and \code{exp.date}.}
   \item{val.date, exp.date}{Valuation and expiration dates. Used to calculate time to maturity if \code{time.to.mat} is \code{NULL}, and ignored otherwise.}
   \item{spot}{Spot price of the underlying.}
@@ -26,14 +27,13 @@ bs.fx.opt(cp=c("call", "put"), strike, time.to.mat=NULL, val.date=NULL, exp.date
   \url{http://en.wikipedia.org/wiki/Black\%E2\%80\%93Scholes_model}
 }
 \examples{
-## EUR/USD -- using numeric times (years)
-bs.opt("call", strike=135:138/100, time.to.mat=1, spot=1.365, vol=0.07, rate=0)
+## puts on SPX
+bs.opt("put", strike=seq(1940, 1960, 5), time.to.mat=63/365, spot=1960, vol=0.025, fwd=1954)
 
 ## use dates instead of time.to.mat
 today <- Sys.Date()
-bs.opt("call", strike=135:138/100, val.date=today, exp.date=today+365, spot=1.365, vol=0.07, rate=0)
+bs.opt("put", strike=seq(1940, 1960, 5), val.date=today, exp.date=today+63, spot=1960, vol=0.025, rate=0.0197)
 
-## also use fwd instead of rate
-today <- Sys.Date()
-bs.opt("call", strike=135:138/100, val.date=today, exp.date=today+365, spot=1.365, vol=0.07, fwd=1.365)
+## EUR/USD -- use fwd instead of rate
+bs.fx.opt("call", strike=135:138/100, val.date=today, exp.date=today+365, spot=1.365, vol=0.07, fwd=1.365)
 }
