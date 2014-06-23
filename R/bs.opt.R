@@ -44,6 +44,7 @@ bs.opt <- function(cp=c("call", "put"), strike=NULL, delta=NULL, time.to.mat=NUL
     ans$theta <- NA_real_
     ans$theta[cc] <- -spot*dnorm(d1)*vol / (2*sqrt(time.to.mat)) - rate*strike*exp(-rate*time.to.mat) * pnorm(d2)
     ans$theta[!cc] <- -spot*dnorm(d1)*vol / (2*sqrt(time.to.mat)) + rate*strike*exp(-rate*time.to.mat) * pnorm(-d2)
+    ans$theta <- ans$theta / 365 ## daily
 
     return(ans)
 }
@@ -52,7 +53,9 @@ bs.fx.opt <- function(cp=c("call", "put"), strike, time.to.mat=NULL, val.date=NU
     ans <- bs.opt(cp=cp, strike=strike, time.to.mat=time.to.mat, val.date=val.date, exp.date=exp.date, spot=spot, vol=vol, rate=rate, fwd=fwd)
     ans$price <- ans$price / ans$spot
     ans$delta <- ans$delta - ans$price
-    ans$gamma <- ans$vega <- ans$theta <- NULL
+    ans$gamma <- ans$gamma - ans$delta / ans$spot
+    ans$vega <- ans$vega / ans$spot
+    ans$theta <- ans$theta / ans$spot
 
     return(ans)
 }

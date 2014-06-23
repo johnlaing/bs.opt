@@ -21,7 +21,11 @@ bs.fx.opt(cp=c("call", "put"), strike, time.to.mat=NULL, val.date=NULL, exp.date
 \value{A \code{data.frame} with inputs, price, and sensitivities.}
 \details{
   These functions take inputs necessary for evaluating options and run them through the Black-Scholes formula and its derivatives.
-  The \code{bs.fx.opt} variant implements the conventions of FX options that are priced in the currency of the underlying. E.g., a EUR/USD option (the option to buy or sell EUR vs USD) is priced in EUR.
+  The \code{bs.fx.opt} variant implements the conventions of FX options that are priced in the currency of the underlying. E.g., a EUR/USD option (the option to buy or sell EUR vs USD) is priced in EUR. In this function: \deqn{
+    P' = P/S \\
+    \Delta' = dP'/dS * S =  \Delta - P' \\
+    \Gamma' = d\Delta'/dS = \Gamma - \Delta'/S
+  }
 }
 \references{
   \url{http://en.wikipedia.org/wiki/Black\%E2\%80\%93Scholes_model}
