@@ -1,0 +1,9 @@
+Package: bs.opt
+Type: Package
+Title: Black-Scholes options
+Version: 0.0.1
+Date: 2014-06-23
+Author: John Laing
+Maintainer: John Laing <john.laing@gmail.com>
+Description: Applications of the Black-Scholes option pricing formula
+License: MIT + file LICENSE
