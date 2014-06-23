@@ -24,26 +24,26 @@ bs.opt <- function(cp=c("call", "put"), strike=NULL, delta=NULL, time.to.mat=NUL
         return(ans)
     }
     ans <- data.frame(cp, strike, time.to.mat, spot, vol, rate, stringsAsFactors=FALSE)
-    d1 <- d1(strike, time.to.mat, spot, vol, rate)
-    d2 <- d2(strike, time.to.mat, spot, vol, rate)
+    d1 <- with(ans, d1(strike, time.to.mat, spot, vol, rate))
+    d2 <- with(ans, d2(strike, time.to.mat, spot, vol, rate))
 
     cc <- ans$cp == "call"
 
     ans$price <- NA_real_
-    ans$price[cc] <- with(ans[cc, ], pnorm(d1)*spot - pnorm(d2)*strike*exp(-rate*time.to.mat))
-    ans$price[!cc] <- with(ans[!cc, ], pnorm(-d2)*strike*exp(-rate*time.to.mat) - pnorm(-d1)*spot)
+    ans$price[cc] <- with(ans[cc, ], pnorm(d1[cc])*spot - pnorm(d2[cc])*strike*exp(-rate*time.to.mat))
+    ans$price[!cc] <- with(ans[!cc, ], pnorm(-d2[!cc])*strike*exp(-rate*time.to.mat) - pnorm(-d1[!cc])*spot)
 
     ans$delta <- NA_real_
-    ans$delta[cc] <- pnorm(d1)
-    ans$delta[!cc] <- -pnorm(-d1)
+    ans$delta[cc] <- pnorm(d1[cc])
+    ans$delta[!cc] <- -pnorm(-d1[!cc])
 
     ans$gamma <- dnorm(d1) / (spot * vol * sqrt(time.to.mat))
 
     ans$vega <- spot * dnorm(d1) * sqrt(time.to.mat)
 
     ans$theta <- NA_real_
-    ans$theta[cc] <- -spot*dnorm(d1)*vol / (2*sqrt(time.to.mat)) - rate*strike*exp(-rate*time.to.mat) * pnorm(d2)
-    ans$theta[!cc] <- -spot*dnorm(d1)*vol / (2*sqrt(time.to.mat)) + rate*strike*exp(-rate*time.to.mat) * pnorm(-d2)
+    ans$theta[cc] <- with(ans[cc, ], -spot*dnorm(d1[cc])*vol / (2*sqrt(time.to.mat)) - rate*strike*exp(-rate*time.to.mat) * pnorm(d2[cc]))
+    ans$theta[!cc] <- with(ans[!cc, ], -spot*dnorm(d1[!cc])*vol / (2*sqrt(time.to.mat)) + rate*strike*exp(-rate*time.to.mat) * pnorm(-d2[!cc]))
     ans$theta <- ans$theta / 365 ## daily
 
     return(ans)
