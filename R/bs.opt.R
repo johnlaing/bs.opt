@@ -1,5 +1,13 @@
-bs.opt <- function(cp=c("call", "put"), strike, time.to.mat, spot, vol, rate) {
+bs.opt <- function(cp=c("call", "put"), strike, time.to.mat=NULL, val.date=NULL, exp.date=NULL, spot, vol, rate=NULL, fwd=NULL) {
     cp <- match.arg(cp, several.ok=TRUE)
+
+    if (is.null(time.to.mat)) {
+        if (is.null(val.date)) val.date <- Sys.Date()
+        time.to.mat <- as.numeric(exp.date - val.date) / 365
+    }
+    if (is.null(rate)) {
+        rate <- log(fwd / spot) / time.to.mat
+    }
     ans <- data.frame(cp, strike, time.to.mat, spot, vol, rate, stringsAsFactors=FALSE)
     d1 <- d1(strike, time.to.mat, spot, vol, rate)
     d2 <- d2(strike, time.to.mat, spot, vol, rate)
@@ -25,7 +33,7 @@ bs.opt <- function(cp=c("call", "put"), strike, time.to.mat, spot, vol, rate) {
     return(ans)
 }
 
-bs.fx.opt <- function(cp=c("call", "put"), strike, time.to.mat, spot, vol, rate) {
+bs.fx.opt <- function(cp=c("call", "put"), strike, time.to.mat=NULL, val.date=NULL, exp.date=NULL, spot, vol, rate=NULL, fwd=NULL) {
     ans <- bs.opt(cp=cp, strike=strike, time.to.mat=time.to.mat, spot=spot, vol=vol, rate=rate)
     ans$price <- ans$price / ans$spot
     ans$delta <- ans$delta - ans$price

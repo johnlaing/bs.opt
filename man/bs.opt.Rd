@@ -4,16 +4,18 @@
 \title{Black-Scholes Option}
 \description{Applications of he Black-Scholes option pricing formula}
 \usage{
-bs.opt(cp=c("call", "put"), strike, time.to.mat, spot, vol, rate)
-bs.fx.opt(cp=c("call", "put"), strike, time.to.mat, spot, vol, rate)
+bs.opt(cp=c("call", "put"), strike, time.to.mat=NULL, val.date=NULL, exp.date=NULL, spot, vol, rate=NULL, fwd=NULL)
+bs.fx.opt(cp=c("call", "put"), strike, time.to.mat=NULL, val.date=NULL, exp.date=NULL, spot, vol, rate=NULL, fwd=NULL)
 }
 \arguments{
-  \item{cp}{Direction of the option: call or put}
-  \item{strike}{Strike price of the option}
-  \item{time.to.mat}{Time to maturity of the option, expressed in years}
-  \item{spot}{Spot price of the underlying}
-  \item{vol}{Volatility of the underlying}
-  \item{rate}{Risk-free or forward rate}
+  \item{cp}{Direction of the option: call or put.}
+  \item{strike}{Strike price of the option.}
+  \item{time.to.mat}{Time to maturity of the option, expressed in years. If left \code{NULL}, will be calculated from \code{val.date} and \code{exp.date}.}
+  \item{val.date, exp.date}{Valuation and expiration dates. Used to calculate time to maturity if \code{time.to.mat} is \code{NULL}, and ignored otherwise.}
+  \item{spot}{Spot price of the underlying.}
+  \item{vol}{Volatility of the underlying.}
+  \item{rate}{Risk-free or forward rate. If left \code{NULL}, will be implied from \code{fwd}, \code{spot}, and \code{time.to.mat}.}
+  \item{fwd}{Forward price of the underlying. Used to calculate forward rate if \code{rate} is \code{NULL}, and ignored otherwise.}
 }
 \value{A \code{data.frame} with inputs, price, and sensitivities.}
 \details{
@@ -25,5 +27,13 @@ bs.fx.opt(cp=c("call", "put"), strike, time.to.mat, spot, vol, rate)
 }
 \examples{
 ## EUR/USD -- using numeric times (years)
-bs.opt("call", 135:138/100, 1, 1.365, 0.07, 0)
+bs.opt("call", strike=135:138/100, time.to.mat=1, spot=1.365, vol=0.07, rate=0)
+
+## use dates instead of time.to.mat
+today <- Sys.Date()
+bs.opt("call", strike=135:138/100, val.date=today, exp.date=today+365, spot=1.365, vol=0.07, rate=0)
+
+## also use fwd instead of rate
+today <- Sys.Date()
+bs.opt("call", strike=135:138/100, val.date=today, exp.date=today+365, spot=1.365, vol=0.07, fwd=1.365)
 }
