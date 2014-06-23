@@ -5,7 +5,7 @@
 \description{Applications of he Black-Scholes option pricing formula}
 \usage{
 bs.opt(cp=c("call", "put"), strike=NULL, delta=NULL, time.to.mat=NULL, val.date=NULL, exp.date=NULL, spot, vol, rate=NULL, fwd=NULL)
-bs.fx.opt(cp=c("call", "put"), strike, time.to.mat=NULL, val.date=NULL, exp.date=NULL, spot, vol, rate=NULL, fwd=NULL)
+bs.fx.opt(cp=c("call", "put"), strike=NULL, delta=NULL, time.to.mat=NULL, val.date=NULL, exp.date=NULL, spot, vol, rate=NULL, fwd=NULL)
 }
 \arguments{
   \item{cp}{Direction of the option: call or put.}
@@ -40,4 +40,7 @@ bs.opt("put", strike=seq(1940, 1960, 5), val.date=today, exp.date=today+63, spot
 
 ## EUR/USD -- use fwd instead of rate
 bs.fx.opt("call", strike=135:138/100, val.date=today, exp.date=today+365, spot=1.365, vol=0.07, fwd=1.365)
+
+## back into strikes from deltas
+bs.fx.opt(c("put", "put", "call", "call"), delta=c(-.25, -.50, .50, .25), time.to.mat=0.25, spot=1.365, vol=0.05, rate=0)
 }

@@ -49,7 +49,20 @@ bs.opt <- function(cp=c("call", "put"), strike=NULL, delta=NULL, time.to.mat=NUL
     return(ans)
 }
 
-bs.fx.opt <- function(cp=c("call", "put"), strike, time.to.mat=NULL, val.date=NULL, exp.date=NULL, spot, vol, rate=NULL, fwd=NULL) {
+bs.fx.opt <- function(cp=c("call", "put"), strike=NULL, delta=NULL, time.to.mat=NULL, val.date=NULL, exp.date=NULL, spot, vol, rate=NULL, fwd=NULL) {
+    if (is.null(strike)) {
+        if (is.null(delta)) stop("if 'strike' is NULL then 'delta' must be provided")
+        if (any(abs(delta) < 0 | abs(delta) > 1)) stop("'delta' must be between 0 and 1")
+
+        strike <- spot
+        ans <- bs.fx.opt(cp=cp, strike=strike, time.to.mat=time.to.mat, val.date=val.date, exp.date=exp.date, spot=spot, vol=vol, rate=rate, fwd=fwd)
+        if (any(c(call=1, put=-1)[ans$cp] != sign(delta))) stop("calls must have positive delta and puts must have negative delta")
+        while (any(abs(ans$delta - delta) > .Machine$double.eps ^ 0.5)) {
+            strike <- strike + strike * (ans$delta - delta) / ans$gamma
+            ans <- bs.fx.opt(cp=cp, strike=strike, time.to.mat=time.to.mat, val.date=val.date, exp.date=exp.date, spot=spot, vol=vol, rate=rate, fwd=fwd)
+        }
+        return(ans)
+    }
     ans <- bs.opt(cp=cp, strike=strike, time.to.mat=time.to.mat, val.date=val.date, exp.date=exp.date, spot=spot, vol=vol, rate=rate, fwd=fwd)
     ans$price <- ans$price / ans$spot
     ans$delta <- ans$delta - ans$price
