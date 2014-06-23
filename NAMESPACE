@@ -1,1 +1,1 @@
-export("bs.opt")
+export("bs.opt", "bs.fx.opt")

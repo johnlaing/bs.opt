@@ -1,9 +1,11 @@
 \name{bs.opt}
 \alias{bs.opt}
+\alias{bs.fx.opt}
 \title{Black-Scholes Option}
 \description{Applications of he Black-Scholes option pricing formula}
 \usage{
 bs.opt(cp=c("call", "put"), strike, time.to.mat, spot, vol, rate)
+bs.fx.opt(cp=c("call", "put"), strike, time.to.mat, spot, vol, rate)
 }
 \arguments{
   \item{cp}{Direction of the option: call or put}
@@ -13,7 +15,11 @@ bs.opt(cp=c("call", "put"), strike, time.to.mat, spot, vol, rate)
   \item{vol}{Volatility of the underlying}
   \item{rate}{Risk-free or forward rate}
 }
-\value{A \code{data.frame} with inputs, price, and sensitivities}
+\value{A \code{data.frame} with inputs, price, and sensitivities.}
+\details{
+  These functions take inputs necessary for evaluating options and run them through the Black-Scholes formula and its derivatives.
+  The \code{bs.fx.opt} variant implements the conventions of FX options that are priced in the currency of the underlying. E.g., a EUR/USD option (the option to buy or sell EUR vs USD) is priced in EUR.
+}
 \references{
   \url{http://en.wikipedia.org/wiki/Black\%E2\%80\%93Scholes_model}
 }
