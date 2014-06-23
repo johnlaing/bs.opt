@@ -4,9 +4,24 @@ bs.opt <- function(cp=c("call", "put"), strike, time.to.mat, spot, vol, rate) {
     d1 <- d1(strike, time.to.mat, spot, vol, rate)
     d2 <- d2(strike, time.to.mat, spot, vol, rate)
 
+    cc <- ans$cp == "call"
+
     ans$price <- NA_real_
-    ans$price[ans$cp == "call"] <- with(ans[ans$cp == "call", ], pnorm(d1)*spot - pnorm(d2)*strike*exp(-rate*time.to.mat))
-    ans$price[ans$cp == "put"] <- with(ans[ans$cp == "call", ], pnorm(-d2)*strike*exp(-rate*time.to.mat) - pnorm(-d1)*spot)
+    ans$price[cc] <- with(ans[cc, ], pnorm(d1)*spot - pnorm(d2)*strike*exp(-rate*time.to.mat))
+    ans$price[!cc] <- with(ans[!cc, ], pnorm(-d2)*strike*exp(-rate*time.to.mat) - pnorm(-d1)*spot)
+
+    ans$delta <- NA_real_
+    ans$delta[cc] <- pnorm(d1)
+    ans$delta[!cc] <- -pnorm(-d1)
+
+    ans$gamma <- dnorm(d1) / (spot * vol * sqrt(time.to.mat))
+
+    ans$vega <- spot * dnorm(d1) * sqrt(time.to.mat)
+
+    ans$theta <- NA_real_
+    ans$theta[cc] <- -spot*dnorm(d1)*vol / (2*sqrt(time.to.mat)) - rate*strike*exp(-rate*time.to.mat) * pnorm(d2)
+    ans$theta[!cc] <- -spot*dnorm(d1)*vol / (2*sqrt(time.to.mat)) + rate*strike*exp(-rate*time.to.mat) * pnorm(-d2)
+
     return(ans)
 }
 
