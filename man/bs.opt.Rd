@@ -4,7 +4,7 @@
 \title{Black-Scholes Option}
 \description{Applications of he Black-Scholes option pricing formula}
 \usage{
-bs.opt(cp=c("call", "put"), strike=NULL, delta=NULL, time.to.mat=NULL, val.date=NULL, exp.date=NULL, spot, vol, rate=NULL, fwd=NULL)
+bs.opt(cp=c("call", "put"), strike=NULL, delta=NULL, time.to.mat=NULL, val.date=NULL, exp.date=NULL, spot, vol=NULL, price=NULL, rate=NULL, fwd=NULL)
 bs.fx.opt(cp=c("call", "put"), strike=NULL, delta=NULL, time.to.mat=NULL, val.date=NULL, exp.date=NULL, spot, vol, rate=NULL, fwd=NULL)
 }
 \arguments{
@@ -15,6 +15,7 @@ bs.fx.opt(cp=c("call", "put"), strike=NULL, delta=NULL, time.to.mat=NULL, val.da
   \item{val.date, exp.date}{Valuation and expiration dates. Used to calculate time to maturity if \code{time.to.mat} is \code{NULL}, and ignored otherwise.}
   \item{spot}{Spot price of the underlying.}
   \item{vol}{Volatility of the underlying.}
+  \item{price}{Price of the option.}
   \item{rate}{Risk-free or forward rate. If left \code{NULL}, will be implied from \code{fwd}, \code{spot}, and \code{time.to.mat}.}
   \item{fwd}{Forward price of the underlying. Used to calculate forward rate if \code{rate} is \code{NULL}, and ignored otherwise.}
 }

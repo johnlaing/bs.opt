@@ -1,4 +1,4 @@
-bs.opt <- function(cp=c("call", "put"), strike=NULL, delta=NULL, time.to.mat=NULL, val.date=NULL, exp.date=NULL, spot, vol, rate=NULL, fwd=NULL) {
+bs.opt <- function(cp=c("call", "put"), strike=NULL, delta=NULL, time.to.mat=NULL, val.date=NULL, exp.date=NULL, spot, vol=NULL, price=NULL, rate=NULL, fwd=NULL) {
     cp <- match.arg(cp, several.ok=TRUE)
 
     if (is.null(time.to.mat)) {
@@ -12,6 +12,7 @@ bs.opt <- function(cp=c("call", "put"), strike=NULL, delta=NULL, time.to.mat=NUL
     }
     if (is.null(strike)) {
         if (is.null(delta)) stop("if 'strike' is NULL then 'delta' must be provided")
+        if (is.null(vol)) stop("if 'strike' is NULL then 'vol' must be provided")
         if (any(abs(delta) < 0 | abs(delta) > 1)) stop("'delta' must be between 0 and 1")
 
         strike <- spot
@@ -19,6 +20,17 @@ bs.opt <- function(cp=c("call", "put"), strike=NULL, delta=NULL, time.to.mat=NUL
         if (any(c(call=1, put=-1)[ans$cp] != sign(delta))) stop("calls must have positive delta and puts must have negative delta")
         while (any(abs(ans$delta - delta) > .Machine$double.eps ^ 0.5)) {
             strike <- strike + strike * (ans$delta - delta) / ans$gamma
+            ans <- bs.opt(cp=cp, strike=strike, time.to.mat=time.to.mat, spot=spot, vol=vol, rate=rate)
+        }
+        return(ans)
+    }
+    if (is.null(vol)) {
+        if (is.null(price)) stop("if 'vol' is NULL then 'price' must be provided")
+
+        vol <- 0.1
+        ans <- bs.opt(cp=cp, strike=strike, time.to.mat=time.to.mat, spot=spot, vol=vol, rate=rate)
+        while (any(abs(ans$price - price) > .Machine$double.eps ^ 0.5)) {
+            vol <- ans$vol - (ans$price - price) / ans$vega
             ans <- bs.opt(cp=cp, strike=strike, time.to.mat=time.to.mat, spot=spot, vol=vol, rate=rate)
         }
         return(ans)
